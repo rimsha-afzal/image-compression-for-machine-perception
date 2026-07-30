@@ -1,0 +1,5 @@
+dataset,codec,quality,n_images,compression_ratio,size_reduction_pct,baseline_accuracy_pct,compressed_accuracy_pct,accuracy_change_pp,accuracy_loss_pp,mean_psnr,mean_ssim,within_0_5pp,within_1pp,within_2pp
+imagenette,jpeg,70,3925,1.032698,3.166298,87.184713,86.751592,-0.433121,0.433121,41.499407,0.990122,True,True,True
+imagenette,webp,77,3925,1.267697,21.116826,87.184713,86.063694,-1.121019,1.121019,36.817773,0.964534,False,False,True
+imagewoof,jpeg,70,3929,1.029451,2.860830,88.266735,87.554085,-0.712650,0.712650,42.350756,0.991277,False,True,True
+imagewoof,webp,77,3929,1.258529,20.542164,88.266735,87.248664,-1.018071,1.018071,36.723043,0.959598,False,False,True

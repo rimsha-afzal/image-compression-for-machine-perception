@@ -143,12 +143,20 @@ def main() -> None:
     parser.add_argument("--qualities", nargs="+", type=int, default=DEFAULT_QUALITIES)
     parser.add_argument("--data-dir", type=Path, default=Path("data"))
     parser.add_argument("--results-dir", type=Path, default=Path("results"))
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Explicit output CSV path. Only valid when one dataset and one codec are selected.",
+    )
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit", type=int, default=None)
     args = parser.parse_args()
 
     selected_datasets = args.dataset or sorted(DATASETS)
     selected_codecs = args.codec or sorted(SUPPORTED_CODECS)
+    if args.output is not None and (len(selected_datasets) != 1 or len(selected_codecs) != 1):
+        parser.error("--output requires exactly one --dataset and one --codec")
     qualities = validate_qualities(args.qualities)
 
     model, class_names = load_resnet50(device=args.device)
@@ -156,7 +164,11 @@ def main() -> None:
 
     for dataset in selected_datasets:
         for codec in selected_codecs:
-            output_csv = args.results_dir / dataset / "compression" / f"{dataset}_{codec}.csv"
+            output_csv = (
+                args.output
+                if args.output is not None
+                else args.results_dir / dataset / "compression" / f"{dataset}_{codec}.csv"
+            )
             run_compression_experiment(
                 dataset=dataset,
                 codec=codec,

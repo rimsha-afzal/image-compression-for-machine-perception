@@ -1,0 +1,5 @@
+\section{Conclusion}
+
+Selecting an appropriate compression operating region can reduce storage while preserving machine-classification performance. JPEG q70 is the strongest tested JPEG point passing the primary 1 percentage-point tolerance on both datasets, but it saves only about 3\%. WebP q80 is the strongest tested WebP point passing the primary tolerance, with about 12--13\% size reduction. WebP q77 increases reduction to about 20--21\%, while SSIM remains near 0.96 and accuracy loss only slightly exceeds 1 percentage point. This identifies q77--q80 as a candidate WebP operating interval, although the exact operating point within this interval was not estimated.
+
+At the approximately matched storage reductions tested, WebP produced a smaller classification loss than JPEG. WebP therefore provides the strongest observed trade-off among rate, distortion, and accuracy in this study. The result is specific to the tested datasets, model, codec implementation, and chosen tolerance.

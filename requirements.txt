@@ -3,3 +3,5 @@ Pillow
 scikit-image
 torch
 torchvision
+pandas
+matplotlib

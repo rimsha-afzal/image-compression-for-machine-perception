@@ -1,0 +1,1 @@
+"""Aggregate result table generation."""

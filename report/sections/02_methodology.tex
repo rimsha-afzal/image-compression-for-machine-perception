@@ -1,0 +1,147 @@
+\section{Methodology}
+
+\subsection{Datasets and Target Classes}
+
+The experiment uses the validation splits of Imagenette and ImageWoof, two
+ten-class subsets derived from ImageNet \cite{fastai_imagenette,deng2009imagenet}. Imagenette contributes 3,925 evaluated
+images, while ImageWoof contributes 3,929 evaluated images. The training splits
+are not used.
+
+Imagenette contains heterogeneous object categories:
+
+\[
+\mathcal{C}_{\text{Imagenette}} =
+\left[
+\begin{array}{lllll}
+\text{tench}, &
+\text{English springer}, &
+\text{cassette player}, &
+\text{chain saw}, &
+\text{church}, \\
+\text{French horn}, &
+\text{garbage truck}, &
+\text{gas pump}, &
+\text{golf ball}, &
+\text{parachute}
+\end{array}
+\right].
+\]
+
+ImageWoof contains ten visually related dog categories and therefore represents
+a more fine-grained classification task:
+
+\[
+\mathcal{C}_{\text{ImageWoof}} =
+\left[
+\begin{array}{llll}
+\text{Australian terrier}, &
+\text{Border terrier}, &
+\text{Samoyed}, &
+\text{Beagle}, \\
+\text{Shih-Tzu}, &
+\text{English foxhound}, &
+\text{Rhodesian ridgeback}, &
+\text{Dingo}, \\
+\text{Golden retriever}, &
+\text{Old English sheepdog}
+\end{array}
+\right].
+\]
+
+Although each dataset contains only ten target categories, classification is
+performed in the original 1,000-class ImageNet output space of the pretrained
+ResNet-50. The model output is not restricted to the ten subset classes. Each
+dataset label is mapped to its corresponding ImageNet class index, and a
+prediction is counted as correct only when the top-1 prediction among all
+1,000 output classes matches the mapped target.
+\subsection{Experimental Framing}
+
+The distributed source images are already JPEG encoded. The baseline condition is therefore the original distributed JPEG image, not a raw or lossless source image. JPEG conditions represent additional JPEG recompression after decoding the distributed image, while WebP conditions represent JPEG-to-WebP transcoding. Consequently, the experiment is not a comparison starting from raw or lossless image sources. PSNR and SSIM use the decoded distributed JPEG pixels as the reference.
+
+\subsection{Baseline Classifier}
+
+Classification is performed with an ImageNet-pretrained ResNet-50 \cite{he2016resnet} using the \texttt{IMAGENET1K\_V2} weights. The model parameters are frozen, the model is placed in evaluation mode, and no training or fine-tuning is performed. Images are processed with the official torchvision preprocessing associated with the selected ResNet-50 weights. Predictions are made in the original 1,000-class ImageNet output space \cite{torchvision_resnet50}.
+
+\subsection{Compression and Classification Pipeline}
+
+For each validation image, the implemented pipeline proceeds as follows:
+
+\begin{enumerate}
+    \item Load the distributed JPEG image.
+    \item Decode it to RGB.
+    \item Encode it in memory using JPEG or WebP.
+    \item Apply the codec-quality conditions defined in the exploratory and targeted refinement stages.
+    \item Record the encoded byte size.
+    \item Decode the compressed result.
+    \item Compute PSNR and SSIM against the decoded source image.
+    \item Apply the same ResNet-50 preprocessing.
+    \item Classify the compressed image.
+    \item Save one result per image, codec, and quality.
+\end{enumerate}
+
+The compressed images are encoded and decoded in memory for measurement and inference; the implementation stores the resulting per-image measurements and predictions rather than storing a compressed image dataset.
+
+\subsubsection{Implementation and Encoder Configuration}
+
+The experiments were run with Python 3.12.13, PyTorch 2.12.1+cpu, torchvision 0.27.1+cpu, Pillow 12.2.0, and scikit-image 0.26.0. Each source image is opened with Pillow, converted to RGB, encoded in memory, decoded again, and converted to RGB before metric computation and classification. Encoder defaults and metadata choices are documented because they can affect encoded byte size.
+
+\begin{sloppypar}
+\begin{itemize}
+    \item JPEG and WebP encoding use Pillow \texttt{Image.save}; the only explicitly configured encoder argument is \texttt{quality}.
+    \item JPEG chroma subsampling, \texttt{optimize}, and \texttt{progressive} use Pillow defaults. WebP lossless mode, method, and other encoder options also use Pillow defaults.
+    \item EXIF data, ICC profiles, thumbnails, and other metadata are not passed to the in-memory save calls and are not intentionally retained.
+    \item PSNR uses scikit-image \texttt{peak\_signal\_noise\_\allowbreak ratio}; SSIM uses \texttt{structural\_\allowbreak similarity} with \texttt{channel\_axis=-1}. Both use \texttt{data\_range=255} on RGB arrays, and reported values are arithmetic means over images.
+\end{itemize}
+\end{sloppypar}
+
+\subsection{Metrics}
+
+\subsubsection{Compression Ratio}
+
+The aggregate compression ratio is defined as
+\[
+\text{compression ratio} =
+\frac{\text{total original size}}{\text{total compressed size}}.
+\]
+A ratio above 1 means that the compressed output is smaller than the source files, a ratio equal to 1 means no size change, and a ratio below 1 means that the compressed output is larger.
+
+\subsubsection{Size Reduction}
+
+Size reduction is defined as
+\[
+\text{size reduction} =
+\left(1 - \frac{\text{total compressed size}}{\text{total original size}}\right)
+\times 100.
+\]
+Negative values mean that the recompressed or transcoded output is larger than the distributed source files.
+
+\subsubsection{PSNR and SSIM}
+
+PSNR is derived from the mean squared reconstruction error:
+\[
+\mathrm{PSNR} = 10 \log_{10}\left(\frac{MAX_I^2}{\mathrm{MSE}}\right).
+\]
+In this implementation, \(MAX_I = 255\), matching the RGB pixel range used by the scikit-image metric calls. PSNR summarizes pixel-level reconstruction error, while SSIM compares local structural characteristics such as luminance, contrast, and structure \cite{wang2004ssim}. Higher values indicate greater similarity to the decoded distributed JPEG source reference. Neither metric directly measures classification performance.
+
+\subsubsection{Classification Accuracy}
+
+Baseline top-1 accuracy is measured on the original distributed validation images. Compressed top-1 accuracy is measured after JPEG recompression or WebP transcoding. Accuracy change is reported in percentage points:
+\[
+\text{accuracy change} =
+\text{compressed accuracy} - \text{baseline accuracy}.
+\]
+Negative values indicate classification degradation relative to the baseline.
+
+\subsection{Exploratory Experimental Stage}
+
+The quality values 95, 80, 60, 40, 20, and 10 form a broad exploratory grid. The purpose of this grid is to observe the general rate--distortion--accuracy relationship, identify conditions that do not produce useful storage reduction, and locate the transition between mild and more pronounced classification degradation. This sparse grid supports targeted refinement but is not intended to identify an exact continuous threshold by itself.
+
+\subsection{Targeted Refinement Stage}
+
+The exploratory results indicated different transition regions for JPEG and WebP. Therefore, one additional codec-specific quality was evaluated for each codec: JPEG q70 and WebP q77. Both conditions were tested on Imagenette and ImageWoof using the same compression, distortion-measurement, preprocessing, and classification pipeline as the exploratory conditions. Different quality values were selected because JPEG and WebP quality scales are not directly equivalent. The purpose of this stage was to refine the observed transition around the predefined accuracy-loss tolerance without attempting to estimate an exact continuous optimum.
+
+\subsection{Threshold-Identification Method}
+
+The primary acceptable loss in top-1 accuracy is set to 1 percentage point relative to the original baseline. The 1 percentage-point value is an engineering tolerance selected for this experiment rather than a statistical-significance threshold or a universal machine-perception standard. Results are also examined using 0.5 and 2 percentage points as stricter and more permissive sensitivity cases that show how the selected operating point changes with the accepted loss.
+
+For each dataset and codec, a tested condition qualifies only if it produces a compression ratio above 1 and keeps accuracy loss within the selected tolerance. The practical threshold is defined as the qualifying condition with the largest observed compression ratio. Because only discrete codec-quality settings are evaluated, this represents a practical point-estimate threshold rather than an exact continuous optimum. Compression ratio and size reduction describe the selected operating point, while PSNR and SSIM characterize the corresponding decoded-image distortion.

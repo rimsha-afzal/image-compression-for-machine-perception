@@ -1,0 +1,25 @@
+\section{Introduction}
+
+Lossy image compression reduces storage and transmission requirements by discarding image information that is considered less important for reconstruction. This makes it useful in image archives, web applications, edge systems, and machine-perception pipelines where large numbers of images must be stored, transmitted, or processed efficiently.
+
+However, perceptual image quality and classifier performance are not necessarily equivalent. Metrics such as PSNR and SSIM measure distortion relative to a reference image, but they do not directly show whether a classifier preserves the same correct decisions. Compression should therefore be evaluated jointly in terms of storage reduction, image distortion, and downstream classification performance. Previous work has shown that JPEG compression can reduce storage without necessarily degrading pretrained image-classification performance, while learned compression has also been designed explicitly for machine-perception tasks \cite{yang2021compression,codevilla2021learned}. Luo et al. formalized the joint rate--distortion--accuracy trade-off; in contrast, this study evaluates fixed JPEG and WebP settings using decoded images and a frozen classifier \cite{luo2021rda}.
+
+At a signal-processing level, JPEG uses block-based transform coding: image blocks are transformed into frequency coefficients, quantization removes or coarsens information more strongly at lower quality settings, and entropy coding represents the resulting coefficients efficiently. Lossy WebP also combines block-based prediction, transform coding, quantization, and entropy coding, but with a different coding architecture. Because the quality numbers are encoder-specific, JPEG and WebP are compared here through achieved compression ratio, size reduction, decoded-image distortion, and classification performance rather than equal numerical quality settings.
+
+\subsection{Research Objective}
+
+The main objective of this project is to investigate how increasing JPEG recompression and JPEG-to-WebP transcoding affect storage size, decoded image quality, and frozen ResNet-50 top-1 classification performance on Imagenette and ImageWoof.
+
+A second objective is to identify a practical compression threshold as the strongest tested compression condition that keeps classification degradation within a predefined acceptable accuracy-loss tolerance. This threshold is not universal. It depends on the dataset, codec, classifier, preprocessing pipeline, and selected acceptable-loss tolerance.
+
+\subsection{Research Questions}
+
+The project is guided by the following research questions:
+
+\begin{description}
+    \item[(i)] How does increasing lossy compression affect storage reduction, decoded-image distortion, and frozen ResNet-50 top-1 classification accuracy?
+    \item[(ii)] At approximately comparable storage reductions, how do JPEG recompression and JPEG-to-WebP transcoding differ in their preservation of image quality and classification performance?
+    \item[(iii)] For each dataset and codec, what is the strongest tested compression condition that reduces file size while keeping classification loss within the predefined acceptable tolerance?
+\end{description}
+
+The exploratory and targeted-refinement stages jointly address all three research questions.

@@ -1,0 +1,78 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{cite}
+\usepackage[section]{placeins}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{5pt}
+\setlength{\belowcaptionskip}{3pt}
+\setlength{\abovedisplayskip}{0.45em plus 0.15em minus 0.15em}
+\setlength{\belowdisplayskip}{0.45em plus 0.15em minus 0.15em}
+\setlength{\abovedisplayshortskip}{0.3em plus 0.1em minus 0.1em}
+\setlength{\belowdisplayshortskip}{0.3em plus 0.1em minus 0.1em}
+\setlength{\emergencystretch}{2em}
+
+\makeatletter
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+  {1em plus .25em minus .15em}{0.45em plus .1em}%
+  {\normalfont\Large\bfseries}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {0.75em plus .2em minus .1em}{0.25em plus .1em}%
+  {\normalfont\large\bfseries}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+  {0.55em plus .15em minus .1em}{0.2em plus .05em}%
+  {\normalfont\normalsize\bfseries}}
+\def\@listi{\leftmargin\leftmargini
+  \topsep 0.2em plus 0.05em minus 0.05em
+  \parsep 0.08em plus 0.03em minus 0.03em
+  \itemsep 0.08em plus 0.03em minus 0.03em}
+\let\@listI\@listi
+\@listi
+\def\@listii{\leftmargin\leftmarginii
+  \topsep 0.15em plus 0.05em minus 0.05em
+  \parsep 0.05em plus 0.02em minus 0.02em
+  \itemsep 0.05em plus 0.02em minus 0.02em}
+\makeatother
+
+\title{Impact of JPEG Recompression and WebP Transcoding on Image Classification Performance}
+\author{Author: Rimsha Afzal\\Course: Signal, Image and Video\\University of Trento}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Lossy image compression is widely used to reduce storage and transmission costs, but its effects in machine-perception pipelines must be evaluated beyond visual distortion alone. This project studies JPEG recompression and JPEG-to-WebP transcoding on the Imagenette and ImageWoof validation sets using a frozen ImageNet-pretrained ResNet-50 classifier. For each dataset, codec, and quality condition, the experiment measures compression ratio, PSNR, SSIM, and top-1 accuracy. Using a primary acceptable accuracy loss of 1 percentage point, JPEG q70 is identified as the strongest tested JPEG condition passing the primary tolerance on both datasets, while WebP q80 is the strongest tested WebP condition passing the same rule. WebP q77 is an informative near-boundary condition, reducing size by approximately 20--21\% while retaining mean SSIM close to 0.96, but slightly exceeding the primary accuracy-loss tolerance. Within this experiment, WebP provides the strongest observed rate--accuracy trade-off among the tested passing settings, without implying an exact continuous optimum or universal codec superiority.
+\end{abstract}
+
+\input{sections/01_introduction}
+\input{sections/02_methodology}
+\input{sections/03_preliminary_results}
+\clearpage
+\input{sections/04_discussion}
+\input{sections/05_limitations}
+\input{sections/06_conclusion}
+
+\clearpage
+{\small
+\section{References}
+\makeatletter
+\renewcommand{\section}{\@ifstar\@gobble\@gobble}
+\makeatother
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+}
+
+\end{document}

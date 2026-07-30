@@ -1,0 +1,3 @@
+\section{Limitations}
+
+The study is limited to two validation sets, one frozen ResNet-50 model, and one preprocessing pipeline. Because the source images are already JPEG encoded, the experiment evaluates recompression and transcoding rather than compression from raw images. The tested quality values identify practical operating ranges rather than exact optima; a denser search could refine these ranges, but any estimated operating point would remain specific to the dataset, classifier, codec implementation, and selected tolerance. The threshold classification is based on point estimates; no paired confidence intervals, bootstrap analysis, or McNemar test were performed. Finally, aggregate accuracy, PSNR, and SSIM may hide per-class or per-image behaviour.

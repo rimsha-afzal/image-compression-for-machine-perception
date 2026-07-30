@@ -1,0 +1,19 @@
+\section{Discussion}
+
+\subsection{RQ1: Effect of Increasing Compression}
+
+The results show that stronger useful compression generally produces greater degradation in classification accuracy, although the relationship is not perfectly linear. Some high-quality recompression or transcoding settings increase file size because the source images are already JPEG encoded, so high codec quality does not necessarily produce useful compression. Once compression ratios exceed one, classification losses generally increase as compression becomes stronger. Aggressive JPEG recompression produces particularly large losses on ImageWoof. This greater sensitivity may be related to its more fine-grained and visually similar dog categories, although the present experiment does not directly test that explanation.
+
+\subsection{RQ2: JPEG and WebP Comparison}
+
+JPEG and WebP quality values are not directly comparable, so the codec comparison must use compression ratio or size reduction together with classification accuracy. At approximately matched reductions, WebP preserves classification accuracy better in the tested conditions. WebP q80 offers around 12--13\% size reduction while remaining within the primary tolerance, whereas JPEG q70 passes the same tolerance but provides only around 3\% reduction. Within this experiment, WebP therefore provides the strongest observed practical trade-off, without implying that the same conclusion holds for every dataset, model, or compression implementation.
+
+\subsection{RQ3: Practical Threshold}
+
+The strongest tested conditions satisfying the primary 1 percentage-point rule are JPEG q70 for Imagenette, JPEG q70 for ImageWoof, WebP q80 for Imagenette, and WebP q80 for ImageWoof. These are discrete tested operating points. The observed primary-tolerance transition is bracketed by WebP q80 and q77, and by JPEG q70 and q60. These intervals describe tested operating regions rather than exact continuous boundaries. The project therefore identifies practical tested thresholds rather than mathematical continuous optima.
+
+The selected operating point changes with the accepted loss. Under the stricter 0.5 percentage-point margin, JPEG q70 on Imagenette is the only tested size-reducing condition that remains within tolerance, while no useful tested condition passes on ImageWoof. Under the 2 percentage-point margin, the strongest tested passing points are JPEG q60 and WebP q60 on Imagenette, and JPEG q60 and WebP q77 on ImageWoof.
+
+\subsection{Signal-Processing Interpretation}
+
+The experiment evaluates coding rate through compression ratio and size reduction, quantization-induced decoded-signal distortion through PSNR and SSIM, and task preservation through classification accuracy. PSNR and SSIM quantify reconstruction fidelity relative to the decoded source image, while accuracy measures whether the reconstructed signal retains enough task-relevant information for the downstream classifier. A high SSIM does not guarantee that the primary accuracy tolerance is satisfied. WebP q77 illustrates this clearly: SSIM remains around 0.96, but accuracy loss crosses the 1 percentage-point boundary on both datasets. Machine-oriented compression therefore requires joint rate--distortion--accuracy evaluation.
